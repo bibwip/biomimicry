@@ -89,7 +89,7 @@ def calculate_servo():
     while True:
         if correcting:
             print(f"Corecting {controlling}: {Y}")
-            kit.continuous_servo[controlling].throttle = Y
+            kit.continuous_servo[controlling].throttle = Y/2 +0.1
         serv1 = 0
         serv2 = 0
         serv3 = 0
@@ -119,9 +119,9 @@ def calculate_servo():
         serv3 += Z
         serv2 += Z
         print(serv1,serv2,serv3)
-        kit.continuous_servo[0].throttle = serv1
-        kit.continuous_servo[1].throttle = serv2
-        kit.continuous_servo[2].throttle = serv3
+        kit.continuous_servo[0].throttle = (serv1/2) + 0.1
+        kit.continuous_servo[1].throttle = serv2/2 + 0.1
+        kit.continuous_servo[2].throttle = serv3/2 + 0.1
 
 servoding = Thread(target= calculate_servo)
 controller = MyController(interface="/dev/input/js0", connecting_using_ds4drv=False)
