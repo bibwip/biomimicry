@@ -7,5 +7,5 @@ kit.servo[3].angle = 90
 
 while True:
     print(kit.servo[3].angle)
-    var = input("angle:")
+    var = int(input("angle:"))
     kit.servo[3].angle = var
