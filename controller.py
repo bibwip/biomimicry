@@ -17,6 +17,7 @@ class MyController(Controller):
         self.X = 0
         self.Y = 0
         self.Z = 0
+        self.gripper = 0
         self.controlling = 0
         self.correcting = False
 
@@ -71,6 +72,20 @@ class MyController(Controller):
         self.correcting = not self.correcting
         self.controlling = 1
 
+    def on_L1_press(self, value):
+        if abs(value) > self.min_value:
+            self.gripper = abs(value)/self.max_value
+
+    def on_L1_release(self):
+        self.gripper = 0
+
+    def on_R1_press(self, value):
+        if abs(value) > self.min_value:
+            self.gripper = -abs(value)/self.max_value
+
+    def on_R1_release(self):
+        self.gripper = 0
+
     # Calculates the throttle speed of each servo to move the arm a certain
     # direction.
     def calculate_servo(self):
@@ -78,6 +93,7 @@ class MyController(Controller):
             if self.correcting:
                 print(f"Corecting {self.controlling}: {self.Y}")
                 kit.continuous_servo[self.controlling].throttle = self.Y/2 +0.1
+                continue
             serv1 = 0
             serv2 = 0
             serv3 = 0
@@ -102,14 +118,18 @@ class MyController(Controller):
                 serv1 = ratio*power
                 serv3 = (1-ratio)*power
                 serv2 = 0
-            sleep(0.3)
-            serv1 += self.Z
-            serv3 += self.Z
-            serv2 += self.Z
-            print(serv1,serv2,serv3)
-            kit.continuous_servo[0].throttle = (serv1/2) + 0.1
-            kit.continuous_servo[1].throttle = serv2/2 + 0.1
-            kit.continuous_servo[2].throttle = serv3/2 + 0.1
+
+            sleep(0.2)
+            serv1 += self.Z/2 + 0.1
+            serv2 += self.Z/2 + 0.1
+            serv3 += self.Z/2 + 0.1
+            serv4 = self.gripper
+
+            print(serv1,serv2,serv3,serv4)
+            kit.continuous_servo[0].throttle = serv1
+            kit.continuous_servo[1].throttle = serv2
+            kit.continuous_servo[2].throttle = serv3
+            kit.continuous_servo[3].throttle = serv4
 
 controller = MyController(interface="/dev/input/js0", connecting_using_ds4drv=False)
 servoding = Thread(target= controller.calculate_servo)
