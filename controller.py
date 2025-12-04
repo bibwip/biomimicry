@@ -13,7 +13,7 @@ class MyController(Controller):
     def __init__(self, **kwargs):
         Controller.__init__(self, **kwargs)
         self.min_value = 3276
-        self.self.max_value_value = 32766
+        self.max_value = 32766
         self.X = 0
         self.Y = 0
         self.Z = 0
@@ -42,7 +42,7 @@ class MyController(Controller):
 
     def on_R3_down(self, value):
         if abs(value) > self.min_value:
-            self.Y = value/self.self.max_value_value
+            self.Y = value/self.max_value
         else:
             self.Y = 0
 
@@ -72,19 +72,20 @@ class MyController(Controller):
         self.correcting = not self.correcting
         self.controlling = 1
 
-    def on_L1_press(self, value):
-        if abs(value) > self.min_value:
-            self.gripper = abs(value)/self.max_value
+    def on_L1_press(self):
+        self.gripper += 5
+        if self.gripper > 180: self.gripper = 180
+        
 
-    def on_L1_release(self):
-        self.gripper = 0
+ #   def on_L1_release(self):
+    #    self.gripper = 0
 
-    def on_R1_press(self, value):
-        if abs(value) > self.min_value:
-            self.gripper = -abs(value)/self.max_value
+    def on_R1_press(self ):
+        self.gripper -= 5
+        if self.gripper < 0: self.gripper = 0
 
-    def on_R1_release(self):
-        self.gripper = 0
+  #  def on_R1_release(self):
+     #   self.gripper = 0
 
     # Calculates the throttle speed of each servo to move the arm a certain
     # direction.
@@ -129,7 +130,7 @@ class MyController(Controller):
             kit.continuous_servo[0].throttle = serv1
             kit.continuous_servo[1].throttle = serv2
             kit.continuous_servo[2].throttle = serv3
-            kit.continuous_servo[3].throttle = serv4
+            kit.servo[3].angle = serv4
 
 controller = MyController(interface="/dev/input/js0", connecting_using_ds4drv=False)
 servoding = Thread(target= controller.calculate_servo)
