@@ -20,8 +20,6 @@ class MyController(Controller):
         self.gripper = 0
         self.controlling = 0
         self.correcting = False
-        self.gripper_released = False
-
 
     def on_R3_left(self, value):
         if abs(value) > self.min_value:
@@ -78,16 +76,15 @@ class MyController(Controller):
             x = value/self.max_value
             self.gripper += x
             if self.gripper > 180: self.gripper = 180
-            print("gripper:", self.gripper)
-        else:
-            print("aina")
-            
-            
+            kit.servo[3].angle = self.gripper
+
+
     def on_L3_up(self, value):
         if abs(value) > self.min_value:
             x = abs(value)/self.max_value
             self.gripper -= x
             if self.gripper < 0: self.gripper = 0
+            kit.servo[3].angle = self.gripper
 
     # Calculates the throttle speed of each servo to move the arm a certain
     # direction.
@@ -132,7 +129,7 @@ class MyController(Controller):
             kit.continuous_servo[0].throttle = serv1
             kit.continuous_servo[1].throttle = serv2
             kit.continuous_servo[2].throttle = serv3
-            kit.servo[3].angle = serv4
+
 
 controller = MyController(interface="/dev/input/js0", connecting_using_ds4drv=False)
 servoding = Thread(target= controller.calculate_servo)
