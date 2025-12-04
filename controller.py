@@ -1,9 +1,9 @@
 from pyPS4Controller.controller import Controller
-# from adafruit_servokit import ServoKit
+from adafruit_servokit import ServoKit
 from threading import Thread
 import numpy as np
 from time import sleep
-# kit = ServoKit(channels=16)
+kit = ServoKit(channels=16)
 
 
 # Controller class that listens and handles the presses of the playstation
@@ -77,14 +77,21 @@ class MyController(Controller):
         if abs(value) > self.min_value:
             x = value/self.max_value
             self.gripper += x
+            if self.gripper > 180: self.gripper = 180
+            print("gripper:", self.gripper)
+        else:
+            print("aina")
+            
+            
     def on_L3_up(self, value):
         if abs(value) > self.min_value:
             x = abs(value)/self.max_value
             self.gripper -= x
+            if self.gripper < 0: self.gripper = 0
 
     # Calculates the throttle speed of each servo to move the arm a certain
     # direction.
-    # def calculate_servo(self):
+    def calculate_servo(self):
         while True:
             if self.correcting:
                 print(f"Corecting {self.controlling}: {self.Y}")
@@ -128,7 +135,7 @@ class MyController(Controller):
             kit.servo[3].angle = serv4
 
 controller = MyController(interface="/dev/input/js0", connecting_using_ds4drv=False)
-# servoding = Thread(target= controller.calculate_servo)
+servoding = Thread(target= controller.calculate_servo)
 
-# servoding.start()
+servoding.start()
 controller.listen()
