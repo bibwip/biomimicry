@@ -14,10 +14,15 @@ class MyController(Controller):
         Controller.__init__(self, **kwargs)
         self.min_value = 3276
         self.max_value = 32766
+
         self.X = 0
         self.Y = 0
         self.Z = 0
-        self.gripper = 0
+
+        self.gripper_angle = 0
+        self.gripper_speed = 0
+        self.gripper_max_speed = 5
+
         self.controlling = 0
         self.correcting = False
 
@@ -72,24 +77,28 @@ class MyController(Controller):
         self.controlling = 1
 
     def on_L3_down(self, value):
-        if abs(value) > self.min_value:
-            x = value/self.max_value
-            self.gripper += x
-            if self.gripper > 180: self.gripper = 180
-            kit.servo[3].angle = self.gripper
+        factor = abs(value)/self.max_value
+        self.gripper_speed = -(factor * self.gripper_max_speed)
 
 
     def on_L3_up(self, value):
-        if abs(value) > self.min_value:
-            x = abs(value)/self.max_value
-            self.gripper -= x
-            if self.gripper < 0: self.gripper = 0
-            kit.servo[3].angle = self.gripper
+        factor = abs(value)/self.max_value
+        self.gripper_speed = factor * self.gripper_max_speed
+
+    def on_L3_y_at_rest(self):
+        self.gripper_speed = 0
 
     # Calculates the throttle speed of each servo to move the arm a certain
     # direction.
     def calculate_servo(self):
         while True:
+
+            if self.gripper_speed != 0:
+                self.gripper_angle += self.gripper_speed
+                if self.gripper_angle > 180: self.gripper_angle = 180
+                if self.gripper_angle < 0: self.gripper_angle = 0
+
+                kit.servo[3].angle = self.gripper_angle
             if self.correcting:
                 print(f"Corecting {self.controlling}: {self.Y}")
                 kit.continuous_servo[self.controlling].throttle = self.Y/2 +0.1
@@ -119,13 +128,11 @@ class MyController(Controller):
                 serv3 = (1-ratio)*power
                 serv2 = 0
 
-            sleep(0.2)
+            sleep(0.05)
             serv1 += self.Z/2 + 0.1
             serv2 += self.Z/2 + 0.1
             serv3 += self.Z/2 + 0.1
-            serv4 = self.gripper
-
-            print(serv1,serv2,serv3,serv4)
+            print(serv1,serv2,serv3)
             kit.continuous_servo[0].throttle = serv1
             kit.continuous_servo[1].throttle = serv2
             kit.continuous_servo[2].throttle = serv3
