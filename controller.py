@@ -23,8 +23,7 @@ class MyController(Controller):
         self.gripper_speed = 0
         self.gripper_max_speed = 5
 
-        self.controlling = 0
-        self.correcting = False
+        self.scoop_speed = 0
 
     def on_R3_left(self, value):
         if abs(value) > self.min_value:
@@ -64,18 +63,6 @@ class MyController(Controller):
     def on_L2_release(self):
         self.Z = 0
 
-    def on_circle_press(self):
-        self.correcting = not self.correcting
-        self.controlling = 2
-
-    def on_square_press(self):
-        self.correcting = not self.correcting
-        self.controlling = 3
-
-    def on_triangle_press(self):
-        self.correcting = not self.correcting
-        self.controlling = 1
-
     def on_L3_down(self, value):
         factor = abs(value)/self.max_value
         self.gripper_speed = -(factor * self.gripper_max_speed)
@@ -88,6 +75,15 @@ class MyController(Controller):
     def on_L3_y_at_rest(self):
         self.gripper_speed = 0
 
+    def on_up_arrow_press(self):
+        self.scoop_speed = 0.3
+
+    def on_down_arrow_press(self):
+        self.scoop_speed = -0.3
+
+    def on_up_down_arrow_release(self):
+        self.scoop_speed = 0
+
     # Calculates the throttle speed of each servo to move the arm a certain
     # direction.
     def calculate_servo(self):
@@ -99,10 +95,7 @@ class MyController(Controller):
                 if self.gripper_angle < 0: self.gripper_angle = 0
 
                 kit.servo[3].angle = self.gripper_angle
-            if self.correcting:
-                print(f"Corecting {self.controlling}: {self.Y}")
-                kit.continuous_servo[self.controlling].throttle = self.Y/2 +0.1
-                continue
+
             serv1 = 0
             serv2 = 0
             serv3 = 0
@@ -132,10 +125,12 @@ class MyController(Controller):
             serv1 += self.Z/2 + 0.1
             serv2 += self.Z/2 + 0.1
             serv3 += self.Z/2 + 0.1
+            scoop_serv = self.scoop_speed + 0.1
             print(serv1,serv2,serv3)
             kit.continuous_servo[0].throttle = serv1
             kit.continuous_servo[1].throttle = serv2
             kit.continuous_servo[2].throttle = serv3
+            kit.continuous_servo[4].throttle = scoop_serv
 
 
 controller = MyController(interface="/dev/input/js0", connecting_using_ds4drv=False)
