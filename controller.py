@@ -125,12 +125,11 @@ class MyController(Controller):
             serv1 += self.Z/2 + 0.1
             serv2 += self.Z/2 + 0.1
             serv3 += self.Z/2 + 0.1
-            scoop_serv = self.scoop_speed + 0.1
             print(serv1,serv2,serv3)
             kit.continuous_servo[0].throttle = serv1
             kit.continuous_servo[1].throttle = serv2
             kit.continuous_servo[2].throttle = serv3
-            kit.continuous_servo[4].throttle = scoop_serv
+            kit.continuous_servo[4].throttle = self.scoop_speed
 
 
 controller = MyController(interface="/dev/input/js0", connecting_using_ds4drv=False)
