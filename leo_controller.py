@@ -9,8 +9,8 @@ from geometry_msgs.msg import Twist
 import time
 
 
-def map_joystick(value: float):
-    val += 1
+def map_joystick(val: float):
+    val += 1.0
     val = val / 2.0 * 254
     return int(val + 0.5)
 
@@ -18,11 +18,10 @@ def map_joystick(value: float):
 class ControllerCom(Node):
     def __init__(self):
         super().__init__("ControllerCom")
-        # Create ROS 2 publisher
         self.cmd_pub = self.create_publisher(Twist, "cmd_vel", 10)
 
         try:
-            self.ser = serial.Serial("/dev/ttyUSB0", 9600, timeout=1)
+            self.ser = serial.Serial("/dev/ttyUSB0", 115200, timeout=1)
             self.ser.reset_input_buffer()
         except Exception as e:
             self.get_logger().error(f"Could not connect to Serial: {e}")
@@ -66,10 +65,10 @@ class ControllerCom(Node):
         R1 = self.controller.get_button(5)
         L2 = self.controller.get_button(6)
         R2 = self.controller.get_button(7)
-        circle = self.controller.get_button(2)
-        triangle = self.controller.get_button(3)
+        circle = self.controller.get_button(1)
+        triangle = self.controller.get_button(2)
 
-        button_data = 0
+        button_data = 0b0
         if L1:
             button_data |= 0b0000001
         if R1:
@@ -84,6 +83,8 @@ class ControllerCom(Node):
             button_data |= 0b0100000
 
         pakketje = [255, x_right, y_right, button_data]
+        print(bin(button_data))
+        print(pakketje)
         self.ser.write(pakketje)
 
         twist = Twist()
@@ -104,11 +105,6 @@ class ControllerCom(Node):
             self.get_logger().info(
                 f"Linear: {twist.linear.x:.2f}, Angular: {twist.angular.z:.2f}"
             )
-
-
-# --- SETUP: Arduino Serial ---
-# Ensure this matches your port (check 'ls /dev/tty*' in terminal)
-
 
 def main():
     rclpy.init()
