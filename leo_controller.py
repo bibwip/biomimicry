@@ -10,6 +10,8 @@ import time
 
 
 def map_joystick(val: float):
+    if abs(val) < 0.2:
+        val = 0
     val += 1.0
     val = val / 2.0 * 254
     return int(val + 0.5)
@@ -58,8 +60,8 @@ class ControllerCom(Node):
         x_left = -self.controller.get_axis(0)
         y_left = -self.controller.get_axis(1)
 
-        x_right = map_joystick(-self.controller.get_axis(2))
-        y_right = map_joystick(-self.controller.get_axis(3))
+        x_right = map_joystick(-self.controller.get_axis(3))
+        y_right = map_joystick(self.controller.get_axis(4))
 
         L1 = self.controller.get_button(4)
         R1 = self.controller.get_button(5)
@@ -69,22 +71,14 @@ class ControllerCom(Node):
         triangle = self.controller.get_button(2)
 
         button_data = 0b0
-        if L1:
-            button_data |= 0b0000001
-        if R1:
-            button_data |= 0b0000010
-        if L2:
-            button_data |= 0b0000100
-        if R2:
-            button_data |= 0b0001000
-        if circle:
-            button_data |= 0b0010000
-        if triangle:
-            button_data |= 0b0100000
+        if L1: button_data |= 0b0000001
+        if R1: button_data |= 0b0000010
+        if L2: button_data |= 0b0000100
+        if R2: button_data |= 0b0001000
+        if circle: button_data |= 0b0010000
+        if triangle: button_data |= 0b0100000
 
         pakketje = [255, x_right, y_right, button_data]
-        print(bin(button_data))
-        print(pakketje)
         self.ser.write(pakketje)
 
         twist = Twist()

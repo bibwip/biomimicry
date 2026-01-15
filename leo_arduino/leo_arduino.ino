@@ -15,9 +15,9 @@
 #define SERVO_CLAW A0
 #define SERVO_STOR A1
 
-AccelStepper stepperX(1, X_STEP, X_DIR);
-AccelStepper stepperY(1, Y_STEP, Y_DIR);
-AccelStepper stepperZ(1, Z_STEP, Z_DIR);
+AccelStepper stepper1(1, Y_STEP, Y_DIR);
+AccelStepper stepper2(1, X_STEP, X_DIR);
+AccelStepper stepper3(1, Z_STEP, Z_DIR);
 
 Servo serv_claw;
 Servo serv_stor;
@@ -27,10 +27,9 @@ int joyY = 127;
 byte buttonState = 0;
 
 int claw_pos = 0;
-int stor_pos = 0;
 int serv_speed = 5;
 
-float max_speed = 100.0;
+float max_speed = 25.0;
 
 void setup() {
   Serial.begin(115200);
@@ -38,9 +37,12 @@ void setup() {
   serv_stor.attach(SERVO_STOR);
   pinMode(LED_BUILTIN, OUTPUT);
 
-  stepperX.setMaxSpeed(2000);
-  stepperY.setMaxSpeed(2000);
-  stepperZ.setMaxSpeed(2000);
+  stepper1.setMaxSpeed(2000);
+  stepper1.setAcceleration(1000);
+  stepper2.setMaxSpeed(2000);
+  stepper2.setAcceleration(1000);
+  stepper3.setMaxSpeed(2000);
+  stepper3.setAcceleration(1000);
 }
 
 void calculate_motor_speeds(double X, double Y, double z_factor) {
@@ -75,9 +77,10 @@ void calculate_motor_speeds(double X, double Y, double z_factor) {
   motor2 += z_factor;
   motor3 += z_factor;
 
-  if (motor1 != 0) stepperX.move(motor1 * max_speed);
-  if (motor2 != 0) stepperY.move(motor2 * max_speed);
-  if (motor3 != 0) stepperZ.move(motor3 * max_speed);
+
+  if (abs(motor1) > 0.15) stepper1.move(motor1 * max_speed);
+  if (abs(motor2) > 0.15) stepper2.move(motor2 * max_speed);
+  if (abs(motor3) > 0.15) stepper3.move(motor3 * max_speed);
 }
 
 
@@ -104,7 +107,7 @@ void loop() {
 
       int finalZ = 0;
 
-      if (buttonState & 0b000001 != buttonState & 0b000010) {
+      if ((buttonState & 0b000001) != (buttonState & 0b000010)) {
         // L1 - claw close
         if (buttonState & 0b000001) {
           claw_pos += serv_speed;
@@ -120,38 +123,38 @@ void loop() {
         }
       }
 
-      if (buttonState & 0b000100 != buttonState & 0b001000) {
+      if ((buttonState & 0b000100) != (buttonState & 0b001000)) {
         // L2 - Arm retract
         if (buttonState & 0b000100) {
           finalZ = -1;
+          digitalWrite(LED_BUILTIN, HIGH);
         }
 
         // R2 - Arm extend
         if (buttonState & 0b001000) {
           finalZ = 1;
+          digitalWrite(LED_BUILTIN, LOW);
         }
       }
 
       if ((buttonState & 0b010000) != (buttonState & 0b100000)) {
         // Circle - Storage open
         if (buttonState & 0b010000) {
-          claw_pos += serv_speed;
-          if (claw_pos > 180) { claw_pos = 180; }
-          serv_claw.write(claw_pos);
+          serv_stor.write(110);
         }
 
         // Triangle - Storage close
         if (buttonState & 0b100000) {
-          claw_pos -= serv_speed;
-          if (claw_pos < 0) { claw_pos = 0; }
-          serv_claw.write(claw_pos);
+          serv_stor.write(70);
         }
+      } else {
+        serv_stor.write(90);
       }
 
       calculate_motor_speeds(finalX, finalY, finalZ);
     }
   }
-  stepperX.run();
-  stepperY.run();
-  stepperZ.run();
+  stepper1.run();
+  stepper2.run();
+  stepper3.run();
 }

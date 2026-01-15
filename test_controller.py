@@ -58,7 +58,7 @@ class ControllerTester:
                 # Read Right Stick (mapped for Serial)
                 # Note: Axis numbers might vary slightly depending on OS/Driver
                 x_right = map_joystick(-self.controller.get_axis(3))
-                y_right = map_joystick(-self.controller.get_axis(4))
+                y_right = map_joystick(self.controller.get_axis(4))
 
                 # Read Buttons
                 L1 = self.controller.get_button(4)
