@@ -2,7 +2,7 @@
 
 This project implements a teleoperation system for the leo rover equipped with a custom arm that is controlled with 3 steppemotors. It uses a PS4 Controller to simultaneously drive the robot via ROS 2 and control the manipulator via a Serial connection to an Arduino.
 
-## 📂 File Overview
+## File Overview
 
 | File | Description |
 | :--- | :--- |
@@ -12,7 +12,7 @@ This project implements a teleoperation system for the leo rover equipped with a
 
 ---
 
-## 🔌 Hardware Setup
+## Hardware Setup
 
 ### Wiring Diagram (Arduino)
 Based on the macros defined in `controller_receiver.ino`:
@@ -30,7 +30,7 @@ Based on the macros defined in `controller_receiver.ino`:
 
 ---
 
-## 🎮 Controls Mapping
+## Controls Mapping
 
 The system uses a **"Split Control"** scheme:
 * **Left Stick:** Drives the Robot base (ROS 2).
@@ -45,12 +45,12 @@ The system uses a **"Split Control"** scheme:
 | **R1** | Open Claw | Servo moves - |
 | **L2** | Arm Retract (Down) | Z-axis -1 |
 | **R2** | Arm Extend (Up) | Z-axis +1 |
-| **Circle (◯)** | Open Storage | Servo moves + |
-| **Triangle (△)** | Close Storage | Servo moves - |
+| **Circle** | Open Storage | Servo moves + |
+| **Triangle** | Close Storage | Servo moves - |
 
 ---
 
-## 🛠️ Installation & Dependencies
+## Installation & Dependencies
 
 ### 1. Python (PC / Raspberry Pi)
 You need ROS 2 installed (Humble/Foxy). Then install the Python libraries:
@@ -66,7 +66,7 @@ Install the following libraries via the **Arduino IDE Library Manager**:
 
 Upload `controller_receiver.ino` to your board. **Note:** The Baud Rate is `115200`.
 
-## 🚀 How to Run
+## How to Run
 
 ### Step 1: Load Scripts onto the Rover
 If you are connected to the rover via SSH and need to create the file directly, use `cat`:
@@ -92,7 +92,7 @@ Now you can run the script directly:
 python3 controller_com.py
 ```
 
-## 📡 Serial Protocol
+## Serial Protocol
 
 The system uses a custom 4-byte packet protocol for efficiency:
 
