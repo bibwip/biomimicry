@@ -1,14 +1,20 @@
+'''
+Controller Communication Node
+
+This program reads the PS4 controller inputs via Pygame and sends:
+1. Velocity commands to ROS2 for robot movement.
+2. Serial packets to an arduino for control of the arm.
+
+'''
 import serial
 import pygame
 import os
-import time
 
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
-import time
 
-
+# Maps joystick value (-1.0 to 1.0) to integer (0 to 254)
 def map_joystick(val: float):
     if abs(val) < 0.2:
         val = 0
@@ -22,6 +28,7 @@ class ControllerCom(Node):
         super().__init__("ControllerCom")
         self.cmd_pub = self.create_publisher(Twist, "cmd_vel", 10)
 
+        # Setup Serial connection to Arduino
         try:
             self.ser = serial.Serial("/dev/ttyUSB0", 115200, timeout=1)
             self.ser.reset_input_buffer()
@@ -33,10 +40,12 @@ class ControllerCom(Node):
         self.max_angular_speed = 1.0
         self.deadzone = 0.1
 
+        # Set SDL to dummy to allow Pygame to run without a monitor/window
         os.environ["SDL_VIDEODRIVER"] = "dummy"
         pygame.init()
         pygame.joystick.init()
 
+        # Connect to the first available joystick
         if pygame.joystick.get_count() == 0:
             self.get_logger().error(
                 "No joystick found! Connect your PS4 controller."
@@ -49,6 +58,7 @@ class ControllerCom(Node):
                 f"Controller Connected: {self.controller.get_name()}"
             )
 
+        # Run the loop every 0.05 seconds (20Hz)
         self.timer = self.create_timer(0.05, self.timer_callback)
 
     def timer_callback(self):
@@ -57,9 +67,11 @@ class ControllerCom(Node):
 
         pygame.event.pump()
 
+        # Left stick for Robot Movement
         x_left = -self.controller.get_axis(0)
         y_left = -self.controller.get_axis(1)
 
+        # Right stick for Serial Device (mapped to 0-254)
         x_right = map_joystick(-self.controller.get_axis(3))
         y_right = map_joystick(self.controller.get_axis(4))
 
@@ -70,6 +82,7 @@ class ControllerCom(Node):
         circle = self.controller.get_button(1)
         triangle = self.controller.get_button(2)
 
+        # Compress buttons into a single byte using bitwise OR
         button_data = 0b0
         if L1:
             button_data |= 0b0000001
@@ -84,11 +97,14 @@ class ControllerCom(Node):
         if triangle:
             button_data |= 0b0100000
 
+        # Create packet: [StartByte (255), X, Y, Buttons]
         pakketje = [255, x_right, y_right, button_data]
-        self.ser.write(pakketje)
+        if self.ser:
+            self.ser.write(pakketje)
 
         twist = Twist()
 
+        
         if abs(y_left) > self.deadzone:
             twist.linear.x = y_left * self.max_linear_speed
         else:
