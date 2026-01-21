@@ -1,4 +1,4 @@
-# ROS 2 & Arduino Manipulator Control System
+# ROS 2 & Arduino arm Control System
 
 This project implements a teleoperation system for the leo rover equipped with a custom arm that is controlled with 3 steppemotors. It uses a PS4 Controller to simultaneously drive the robot via ROS 2 and control the manipulator via a Serial connection to an Arduino.
 
