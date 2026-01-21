@@ -1,3 +1,4 @@
+# This code was for a small prototype running on 3 servos connected to a PI
 from pyPS4Controller.controller import Controller
 from adafruit_servokit import ServoKit
 from threading import Thread
