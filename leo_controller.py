@@ -71,12 +71,18 @@ class ControllerCom(Node):
         triangle = self.controller.get_button(2)
 
         button_data = 0b0
-        if L1: button_data |= 0b0000001
-        if R1: button_data |= 0b0000010
-        if L2: button_data |= 0b0000100
-        if R2: button_data |= 0b0001000
-        if circle: button_data |= 0b0010000
-        if triangle: button_data |= 0b0100000
+        if L1:
+            button_data |= 0b0000001
+        if R1:
+            button_data |= 0b0000010
+        if L2:
+            button_data |= 0b0000100
+        if R2:
+            button_data |= 0b0001000
+        if circle:
+            button_data |= 0b0010000
+        if triangle:
+            button_data |= 0b0100000
 
         pakketje = [255, x_right, y_right, button_data]
         self.ser.write(pakketje)
@@ -99,6 +105,7 @@ class ControllerCom(Node):
             self.get_logger().info(
                 f"Linear: {twist.linear.x:.2f}, Angular: {twist.angular.z:.2f}"
             )
+
 
 def main():
     rclpy.init()

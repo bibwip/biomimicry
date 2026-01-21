@@ -4,6 +4,7 @@ import os
 import time
 import sys
 
+
 # Helper function to map joystick values to 0-254
 def map_joystick(val: float):
     if abs(val) < 0.2:
@@ -11,6 +12,7 @@ def map_joystick(val: float):
     val += 1.0
     val = val / 2.0 * 254
     return int(val + 0.5)
+
 
 class ControllerTester:
     def __init__(self):
@@ -39,7 +41,7 @@ class ControllerTester:
         if pygame.joystick.get_count() == 0:
             print("Error: No joystick found! Connect your PS4 controller.")
             self.controller = None
-            sys.exit(1) # Exit if no controller
+            sys.exit(1)  # Exit if no controller
         else:
             self.controller = pygame.joystick.Joystick(0)
             self.controller.init()
@@ -70,12 +72,18 @@ class ControllerTester:
 
                 # Bitwise Logic for Serial Packet
                 button_data = 0b0
-                if L1: button_data |= 0b0000001
-                if R1: button_data |= 0b0000010
-                if L2: button_data |= 0b0000100
-                if R2: button_data |= 0b0001000
-                if circle: button_data |= 0b0010000
-                if triangle: button_data |= 0b0100000
+                if L1:
+                    button_data |= 0b0000001
+                if R1:
+                    button_data |= 0b0000010
+                if L2:
+                    button_data |= 0b0000100
+                if R2:
+                    button_data |= 0b0001000
+                if circle:
+                    button_data |= 0b0010000
+                if triangle:
+                    button_data |= 0b0100000
 
                 # Construct Packet
                 # Header (255), X, Y, Buttons
@@ -102,6 +110,7 @@ class ControllerTester:
             print("Serial connection closed.")
         pygame.quit()
         print("Pygame terminated.")
+
 
 if __name__ == "__main__":
     tester = ControllerTester()
