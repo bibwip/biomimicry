@@ -9,6 +9,7 @@ This project implements a teleoperation system for the leo rover equipped with a
 | `leo_controller.py` | **ROS 2 Node.** Reads PS4 inputs, publishes `cmd_vel` to the robot, and sends Serial packets to the Arduino. |
 | `controller_receiver.ino` | **Arduino Firmware.** Receives Serial packets, calculates inverse kinematics, and drives Steppers/Servos. |
 | `test_controller.py` | **Diagnostic Script.** Tests the Controller-to-Arduino connection without needing ROS. |
+| `rplidar-a2m4-r1.stl` | **Print files.** Files to print all components used for this project. |
 
 ---
 
