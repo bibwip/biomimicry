@@ -53,6 +53,8 @@ float max_speed = 25.0;  // Multiplier for stepper movement distance
 void setup() {
   Serial.begin(115200); // Must match the baud rate in the Python script
 
+  D
+
   // Attach Servos
   serv_claw.attach(SERVO_CLAW);
   serv_stor.attach(SERVO_STOR);
